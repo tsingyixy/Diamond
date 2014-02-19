@@ -3,6 +3,7 @@ package com.example.diamond;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
+import android.view.View;
 import android.widget.Button;
 
 public class MainActivity extends Activity {
@@ -12,8 +13,8 @@ public class MainActivity extends Activity {
     private Button transBtn;
     private boolean isNew;
     private ShapeDiamond sd;
-    private int[][] diamonds;
-    private int pos;
+    //private int[][] diamonds;
+    private int posx,posy;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,9 +24,69 @@ public class MainActivity extends Activity {
         transBtn = (Button)findViewById(R.id.button3);
         gv = (GameView)findViewById(R.id.gameView1);
         isNew = true;
-        diamonds = gv._diamonds;
-        pos = diamonds.length / 2 -1;
-        
+        //diamonds = gv._diamonds;
+        posx = GameView._diamonds.length / 2;
+        posy = 0;
+        Player player = new Player();
+        leftBtn.setOnClickListener(player);
+        rightBtn.setOnClickListener(player);
+        //Run();
+        new CalThread().start();
+    }
+    class CalThread extends Thread{
+
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			//super.run();
+			Run();
+		}
+    	
+    }
+    class Player implements View.OnClickListener{
+    	public void LeftGo(ShapeDiamond sd){
+    		int[][] shape = sd.GetShape();
+    		if(posx == 0)
+    			return;
+    		for (int i = 0; i < shape.length; i++) {
+    			for (int j = 0; j < shape[i].length; j++) {
+    				GameView._diamonds[posx+i][j+posy] = 0;
+    			}
+    		}
+
+        	posx -= 1;
+        	if(posx < 0)
+        		posx = 0;
+        	for (int i = 0; i < shape.length; i++) {
+    			for (int j = 0; j < shape[i].length; j++) {
+    				GameView._diamonds[posx+i][j+posy] |= shape[i][j];
+    			}
+    	}
+    	}
+        public void RightGo(ShapeDiamond sd){
+    	  int[][] shape = sd.GetShape();
+    	  if(posx == GameView._diamonds.length -2)
+    		  return;
+  		  for (int i = 0; i < shape.length; i++) {
+  			for (int j = 0; j < shape[i].length; j++) {
+  				GameView._diamonds[posx+i][j+posy] = 0;
+  			}
+  		  }
+      	  posx += 1;
+      	  for (int i = 0; i < shape.length; i++) {
+  			  for (int j = 0; j < shape[i].length; j++) {
+  				GameView._diamonds[posx+i][j+posy] |= shape[i][j];
+  			 }
+         }
+        }
+		@Override
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+			if(v == leftBtn)
+				LeftGo(sd);
+			else if (v == rightBtn)
+				RightGo(sd);
+		}
     }
     public void Calculate(ShapeDiamond sd){
     	
@@ -33,22 +94,29 @@ public class MainActivity extends Activity {
     	if(isNew){
         	for (int i = 0; i < shape.length; i++) {
     			for (int j = 0; j < shape[i].length; j++) {
-    				diamonds[pos+i][j] |= shape[i][j];
+    				GameView._diamonds[posx+i][j+posy] |= shape[i][j];
     			}
     		}
-        	pos++;
+        	posy++;
         	isNew = false;
     	}
     	else{
+        	if ((posy == GameView._diamonds[0].length -shape[0].length - 1) || GameView._diamonds[posx][posy +shape[0].length - 1 ] == 1)
+        	{
+        		posy = 0;
+        		isNew = true;
+        		return;
+        	}
     		for (int i = 0; i < shape.length; i++) {
     			for (int j = 0; j < shape[i].length; j++) {
-    				diamonds[pos+i][j] = 0;
+    				GameView._diamonds[posx+i][j+posy] = 0;
     			}
     		}
-        	pos++;
+        	posy++;
+
         	for (int i = 0; i < shape.length; i++) {
     			for (int j = 0; j < shape[i].length; j++) {
-    				diamonds[pos+i][j] |= shape[i][j];
+    				GameView._diamonds[posx+i][j+posy] |= shape[i][j];
     			}
     		}
     	}
@@ -60,7 +128,14 @@ public class MainActivity extends Activity {
     		if(isNew){
     			sd = new ShapeDiamond(0);
     		}
-    		Calculate(sd);   		
+    		Calculate(sd);   
+    		try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    				
     	}
     }
     class ShapeDiamond {
@@ -68,6 +143,8 @@ public class MainActivity extends Activity {
     	//public static boolean isNew = false;
     	public ShapeDiamond(int flag){
     		//shape = new int[2][4];
+    		posx = GameView._diamonds.length / 2;
+    		posy = 0;
     		Generate(flag);
     	}
     	public void Generate(int flag){
