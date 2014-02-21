@@ -13,6 +13,7 @@ public class MainActivity extends Activity {
     private Button transBtn;
     private boolean isNew;
     private ShapeDiamond sd;
+    private boolean bIsOld;
     //private int[][] diamonds;
     private int posx,posy;
     @Override
