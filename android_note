@@ -1,0 +1,124 @@
+Activity需要重写的三个方法
+OnResume()-->启动或者重启主循环线程
+OnCreate()-->创建用于呈现和接收输入的窗口及UI组件
+OnPause()-->只需要暂停主循环线程，如果Activity.inFinishing()返回true,就需要将所有需要持久化的状态保存至磁盘中。
+
+
+
+触摸设备:
+    单点触摸-->实现OnTouchListener的onTouch(View v,MotionEvent event)方法,其中MotionEvent.getAction()返回触摸事件的类型，具有如下值之一：
+    MotionEvent.ACTION_DOWN,MotionEvent.ACTION_MOVE,MotionEvent.ACTION_CANCEL,MotionEvent.ACTION_UP.
+
+    多点触摸-->MotionEvent.getX(pointerIndex) ,pointerIndex = (event.getAction & MotionEvent.ACTION_POINTER_ID_MASK) >> MotionEvent.ACTION_POINTER_ID_SHIFT;
+    getAction()的返回值低8位用来存事件类型，高8位用来保存pointerIndex,即哪根手指。
+
+加速计:
+    所有Android设备都具有一个3D加速计，一般情况下编程只需要查询加速计状态。
+    首先需要实现一个接口SensorEventListener.
+    该接口具有两个方法：
+    public void onSensorChanged(SensorEvent event)-->加速计事件发生时调用
+    public void onAccuracyChanged(Sensor sensor,int accuracy)-->加速计精度发生变化的时候调用。
+    使用方法:
+        SensorManager manager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
+        boolean hasAccl = manager.getSensorList(Sensor.TYPE_ACCELEROMETER).size()>0;
+        Sensor sensor = manager.getSensorList(Sensor.TYPE_ACCELEROMETER)(0);
+        boolean success = manager.registerListener(listener,sensor,SensorManager.SENSOR_DELAY_GAME);//listener是注册的加速计监听函数
+
+
+文件读取:
+    读取资源文件:
+        资源文件一般放在Assets目录下，
+        AssetManager assetManager = context.getAssets();
+        InputStream input = AssetManager.open("<relative_path on Asserts>");
+        可以通过
+        String state = Enviroment.getExternalStorageDirectoryState()获取外部存储的状态
+        File externalDir = Enviroment.getExternalStorageDirectory();
+        获取外部存储空间的根目录。
+
+数据共享:
+    Android提供了SharedPerference,在Activity中通过如下方式获得:
+        SharedPerference sp = PreferenceManager.getDefaultSharedPreference(this)或者
+        SharedPerference sp = getPreference(MODE_PRIVATE);
+    第一种在一个Activity中共享，第二种可以根据参数选择共享的范围。
+    使用如下:
+        Editor editor = sp.edit();
+        editor.putString("key","value");
+        editor.commit();
+    读取通过:
+        String value = sp.getString("key",null);
+
+
+音乐:
+    音乐分为音效和音乐流，音效短而用的频率高，音乐流比较长。
+    SoundPool类提供了音效的一系列控制。
+        SoundPool pool = new SoundPool(max_at_one_time,AudioManager.STREAM_MUSIC,0);
+        SoundPool.load()方法用来加载一个音效到内存中。该方法第一个参数是AssetFileDescriptor，通过AssetManager获得：
+        AssetFileDescriper descriptor = AssetManager.openFD("<music_file_name>");
+        int id = pool.load(descriptor,1);
+        播放：
+            pool.play(id,1.0f,1.0f,0,0,,);
+        释放:
+            pool.unload(id);
+            pool.release()释放所有占用资源，此后该句柄不可再用。
+    音乐流通过MediaPlayer提供控制:
+        MediaPlayer mp =  new MediaPlayer();
+        AssetFileDescriptor descriptor = assetManager.openFD("music_file_name");
+        mp.setDataSource(descriptor.getFileDescriptor(),descriptor.getStartOffset(),descriptor.getLength());
+        播放:
+            MediaPlayer.prepare();
+            mp.start();
+            MediaPlayer.setLooping(true)设置循环播放
+            MediaPlayer.setVolume(<0~1>,<0~1>)用来设置音量
+            mp.setOnCompletionListener(listener)可以用来设置一个音乐播放完成触发的事件
+            mp.isPlaying()查询播放状态。
+        释放：
+            MediaPlayer.release();
+
+
+图形编程:
+    1,保持游戏持续期间屏幕不变暗，需要使用唤醒电源锁:
+        PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+        WakeLock lock = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK,"my Lock");
+        lock.acquire();
+    游戏结束之后需要调用释放函数，禁用该锁:
+        WakeLock.release();
+    2.游戏全屏:
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlag(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    这两个方法必须在设置视图和调用父类OnCreate()之前调用，不然无效。
+    3.在View类onDraw()的结尾调用invalidate()函数会通知系统在有空闲时间是重绘该View()，UI线程设计时应该尽量减轻负担。
+    4.Canvas类提供了Android 2D API。
+         int width = canvas.getWidth();//获取画布的宽和高,与手机的方向有关
+         int height = canvas.getHeight();
+         canvas.drawXXXX()的最后一个参数是画刷Paint类，该类指定画刷的颜色，粗细，透明度等。
+    5.位图:
+        Bitmap类提供了与位图有关的函数。从资源中加载一副位图如下：
+        InputStream input = assetManager.open("<image_name>");
+        Bitmap bitmap = BitmapFactory.decodeStream(input);
+        PS:这里假设位图放在Assets目录下，如果放在res对应的目录下那么可以直接通过R.drawable.X获得引用。
+        位图同样也可以获得高和宽，类似画布。
+        创建一个空的位图并用来创建一个新的canvas。
+        Bitmap bitmap = Bitmap.createBitmap(int w,int h,Bitmap.Config config);
+        Canvas canvas = new Canvas(bitmap);
+     位图释放:
+        Bitmap.recycle();
+    Canvas.drawBitmap()将位图绘制在屏幕上
+    Canvas.drawBitmap(Bitmap bitmap,float topleftX,float  topleftY,Paint)或者
+    Canvas.drawBitmap(Bitmap bitmap,Rect src,Rect dst,Paint) src矩形可以用来指定绘制位图的哪一个局部，如果不指定则使用整个位图。
+    dst矩形指定绘制的目标区域。
+    6.字体
+        Typeface font = Typeface.createFromAsset(context.getAssets(),"font_file_name");
+        Paint.setTypeFace(font),Paint.setTextSize(size)用来设置画笔的字体。
+        Paint.setTextAlign()用来设置对齐.可选参数Paint.Align.LEFT,Paint.Align.CENTER,Paint.Align.RIGHT.
+    7.SurfaceView
+        专门用于游戏绘图的画布，适合连续渲染。
+        SurfaceView的使用，首先需要获得一个SurfaceHolder的实例:
+            SurfaceHolder holder = SurfaceView.getHolder();
+            Canvas holder.lockCanvas() 和holder.unlockAndPost()分别用来锁定画布开始绘画和提交绘画的内容。
+    8.启用硬件加速
+        在AndroidManifext.xml中的<application/>标记下加入:
+            android:hardwareAccelerated="true"
+
+
+
+
