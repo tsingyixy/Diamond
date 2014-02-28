@@ -1,16 +1,27 @@
 package com.example.russiandiamond;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 
 public class DiamondView extends SurfaceView implements Callback {
-
-	public DiamondView(Context context) {
+    
+	private Bitmap _frameBuffer;
+	private Game _game;
+	private SurfaceHolder _holder;
+	private RenderingThread _render;
+	public DiamondView(Context context,Bitmap buffer) {
 		super(context);
 		// TODO Auto-generated constructor stub
+		this._frameBuffer = buffer;
+		this._game = (Game)context;
+		this._holder = getHolder();
+		_holder.addCallback(this);
+		_render = new RenderingThread(_holder);
 	}
 
 	public DiamondView(Context context, AttributeSet attrs) {
@@ -32,25 +43,47 @@ public class DiamondView extends SurfaceView implements Callback {
 	@Override
 	public void surfaceCreated(SurfaceHolder arg0) {
 		// TODO Auto-generated method stub
-		
+		this._render.runing = true;
+		this._render.start();
 	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder arg0) {
 		// TODO Auto-generated method stub
+		this._render.runing = false;
 		
 	}
 	class RenderingThread extends Thread{
-
+        public boolean runing;
+        private SurfaceHolder _holder;
+        public RenderingThread(SurfaceHolder holder){
+        	this.runing = false;
+        	this._holder = holder;
+        }
 		/* (non-Javadoc)
 		 * @see java.lang.Thread#run()
 		 */
 		@Override
 		public void run() {
 			// TODO Auto-generated method stub
-			super.run();
+			while(runing){
+				synchronized (_holder) {
+					Canvas canvas = _holder.lockCanvas();
+					_game.GetCurrentScreen().update();
+					_game.GetCurrentScreen().present();
+					canvas.drawBitmap(_frameBuffer, null, getClipBounds(), null);
+					_holder.unlockCanvasAndPost(canvas);
+				}
+			}
 		}
 		
+	}
+	public void resume() {
+		// TODO Auto-generated method stub
+		_render.runing = true;
+	}
+	public void pause(){
+		_render.runing = false;
 	}
 
 }

@@ -1,8 +1,10 @@
 package com.example.russiandiamond;
 
+import android.graphics.Bitmap;
+
 public class Asset {
-      public static Image loadingImage;
-      public static Image mainImage;
-      public static Image bgImage ;
-      public static Image diamondImage;
+      public static Bitmap loadingImage;
+      public static Bitmap mainImage;
+      public static Bitmap bgImage ;
+      public static Bitmap diamondImage;
 }
