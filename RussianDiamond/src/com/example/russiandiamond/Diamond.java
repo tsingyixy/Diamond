@@ -17,6 +17,13 @@ public class Diamond {
 }
 class ShapeDiamond{
     public List<Diamond> diamonds;
+    public ShapeDiamond(){
+    	diamonds = new ArrayList<Diamond>();
+    	diamonds.add(new Diamond(15,0));
+    	diamonds.add(new Diamond(16,0));
+    	diamonds.add(new Diamond(15,1));
+    	diamonds.add(new Diamond(16,1));
+    }
 	public int LeftMove(){ 
 		for(Diamond d :diamonds)
 			d.x -= 1;

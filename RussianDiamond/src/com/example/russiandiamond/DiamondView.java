@@ -40,5 +40,17 @@ public class DiamondView extends SurfaceView implements Callback {
 		// TODO Auto-generated method stub
 		
 	}
+	class RenderingThread extends Thread{
+
+		/* (non-Javadoc)
+		 * @see java.lang.Thread#run()
+		 */
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			super.run();
+		}
+		
+	}
 
 }

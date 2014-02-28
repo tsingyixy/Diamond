@@ -1,5 +1,7 @@
 package com.example.russiandiamond;
 
+import android.graphics.Rect;
+
 public class Screen {
 	public int update(){
 		return 0;
@@ -9,8 +11,22 @@ public class Screen {
 	}
 }
 class LoadingScreen extends Screen{
-	public LoadingScreen(){
+	private Graphics g;
+	public static Rect screen;
+	public LoadingScreen(Game game){
 		super();
+		g = game.getGraphics();
+		Asset.bgImage = new Image("bgIamge path");
+		Asset.diamondImage = new Image("diamondIamge path");
+		Asset.loadingImage = new Image("loadingImage path");
+		Asset.mainImage = new Image("bgImage path");
+	}
+	public int update(){
+		return 0;
+	}
+	public int present(){
+		g.DrawImage(Asset.loadingImage, screen);
+		return 0;
 	}
 }
 class MainScreen extends Screen{
