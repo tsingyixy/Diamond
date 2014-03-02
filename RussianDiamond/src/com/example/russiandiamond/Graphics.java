@@ -10,7 +10,12 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-
+/**
+ * 定义图像接口，具有从主活动获取的画布缓冲区和自定义的画笔
+ * 以及各种资源的接口
+ * @author tsingyi
+ *
+ */
 public class Graphics {
 	//public SurfaceHolder holder;
 	private Canvas canvas;

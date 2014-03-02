@@ -7,7 +7,11 @@ import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
-
+/**
+ * 继承自SurfaceView的类，主要用于游戏主循环，不停的更新画面
+ * @author tsingyi
+ *
+ */
 public class DiamondView extends SurfaceView implements Callback {
     
 	private Bitmap _frameBuffer;
@@ -41,6 +45,7 @@ public class DiamondView extends SurfaceView implements Callback {
 	}
 
 	@Override
+	//启动主循环县城
 	public void surfaceCreated(SurfaceHolder arg0) {
 		// TODO Auto-generated method stub
 		this._render.runing = true;
@@ -53,6 +58,8 @@ public class DiamondView extends SurfaceView implements Callback {
 		this._render.runing = false;
 		
 	}
+	//定义用于游戏主循环的线程，不断的重复从内存帧中取出一帧绘制到
+	//画布上
 	class RenderingThread extends Thread{
         public boolean runing;
         private SurfaceHolder _holder;

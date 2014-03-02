@@ -13,7 +13,12 @@ import android.graphics.Bitmap;
 import android.view.Menu;
 import android.view.Window;
 import android.view.WindowManager;
-
+/**
+ * 游戏主活动类，实现了Game接口，初始化
+ * 绘画类，缓冲区等
+ * @author tsingyi
+ *
+ */
 public class MainActivity extends Activity implements Game{
     private Graphics graphics;
     private int status;

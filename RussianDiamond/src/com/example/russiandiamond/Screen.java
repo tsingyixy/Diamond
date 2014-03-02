@@ -1,7 +1,11 @@
 package com.example.russiandiamond;
 
 import android.graphics.Rect;
-
+/**
+ * 这个类代表了画在缓冲区的内容，在主循环的时候会显示在屏幕上
+ * @author tsingyi
+ *
+ */
 public abstract class Screen {
 	protected final Game game;
 	public Screen(Game g){

@@ -6,7 +6,12 @@ import java.io.InputStream;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-
+/**
+ * 本来用于包装Bitmap的类，目前游戏中直接应用Bitmap
+ * 此类暂时不用
+ * @author tsingyi
+ *
+ */
 public class Image {
        public Bitmap bitmap;
        //public static InputStream in;
